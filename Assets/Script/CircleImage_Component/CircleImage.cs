@@ -33,6 +33,10 @@ public class CircleImage : Image
         float radius = rectWidth * 0.5f;
 
         UIVertex origin = new UIVertex();
+        //if want to make the center black shade, use the two line under
+        //byte colorTemp = (byte)(255 * showPercent);
+        //origin.color = new Color32(colorTemp, colorTemp, colorTemp, 255);
+        //
         origin.color = color;
         origin.position = Vector3.zero;
         origin.uv0 = new Vector2(origin.position.x * convertRatio.x + uvCenter.x, origin.position.y * convertRatio.y + uvCenter.y);

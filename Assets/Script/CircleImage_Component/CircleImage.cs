@@ -6,18 +6,20 @@ using UnityEngine.UI;
 
 public class CircleImage : Image
 {
-    private int segments;//how many segments do the cirle have
+    [SerializeField]
+    private float showPercent = 1;//show the percentage of the image fill amount
+    [SerializeField]
+    private int segments = 100;//how many segments do the cirle have
 
     protected override void OnPopulateMesh(VertexHelper vh)
     {
-        segments = 100;
-
         //clear the current image
         vh.Clear();
 
         //acquire the rect information
         float rectWidth = rectTransform.rect.width;
         float rectHeight = rectTransform.rect.height;
+        int realSegments = (int)(segments * showPercent);
 
         //acquire the current sprite uv information
         Vector4 uv = overrideSprite!=null?DataUtility.GetOuterUV(overrideSprite):Vector4.zero;
@@ -36,23 +38,30 @@ public class CircleImage : Image
         origin.uv0 = new Vector2(origin.position.x * convertRatio.x + uvCenter.x, origin.position.y * convertRatio.y + uvCenter.y);
         vh.AddVert(origin);
 
-        int vertexCount = segments + 1;
+        int vertexCount = realSegments + 1;//use the realSegment to control the percentage
         float currentRadian = 0;
-        for(int i = 0; i < vertexCount; i++)
+        for(int i = 0; i < segments + 1; i++)//used vertexCount before
         {
             float x = Mathf.Cos(currentRadian) * radius;
             float y = Mathf.Sin(currentRadian) * radius;
             currentRadian += radian;
 
             UIVertex tempVertext = new UIVertex();
-            tempVertext.color = color;
+            if(i < vertexCount)
+            {
+                tempVertext.color = color;
+            }else
+            {
+                tempVertext.color = new Color32(60, 60, 60, 255);
+            }
+
             tempVertext.position = new Vector2(x, y);
             tempVertext.uv0 = new Vector2(tempVertext.position.x * convertRatio.x + uvCenter.x, tempVertext.position.y * convertRatio.y + uvCenter.y);
             vh.AddVert(tempVertext);
         }
 
         int id = 1;
-        for(int i = 0; i < segments; i++)
+        for(int i = 0; i < segments; i++)//use the realSegment to control the percentage//used realSegments before
         {
             vh.AddTriangle(id, 0, id + 1);
             //vh.AddTriangle(0, id + 1, id);

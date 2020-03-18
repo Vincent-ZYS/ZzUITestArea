@@ -38,7 +38,8 @@ public class CircleImage : Image
         //origin.color = new Color32(colorTemp, colorTemp, colorTemp, 255);
         //
         origin.color = color;
-        origin.position = Vector3.zero;
+        origin.position = Vector2.zero;
+        origin.position = new Vector2();
         origin.uv0 = new Vector2(origin.position.x * convertRatio.x + uvCenter.x, origin.position.y * convertRatio.y + uvCenter.y);
         vh.AddVert(origin);
 

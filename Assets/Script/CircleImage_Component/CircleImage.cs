@@ -11,6 +11,8 @@ public class CircleImage : Image
     [SerializeField]
     private int segments = 100;//how many segments do the cirle have
 
+    private List<Vector3> _vertexList = new List<Vector3>();
+
     protected override void OnPopulateMesh(VertexHelper vh)
     {
         //clear the current image
@@ -38,13 +40,16 @@ public class CircleImage : Image
         //origin.color = new Color32(colorTemp, colorTemp, colorTemp, 255);
         //
         origin.color = color;
-        origin.position = Vector2.zero;
-        origin.position = new Vector2();
-        origin.uv0 = new Vector2(origin.position.x * convertRatio.x + uvCenter.x, origin.position.y * convertRatio.y + uvCenter.y);
+        //origin.position = Vector2.zero;
+        Vector2 orignPos = new Vector2((0.5f - rectTransform.pivot.x)*rectWidth,(0.5f - rectTransform.pivot.y)*rectHeight);
+        Vector2 vertPos = Vector2.zero;
+        origin.position = orignPos;
+        origin.uv0 = new Vector2(vertPos.x * convertRatio.x + uvCenter.x, vertPos.y * convertRatio.y + uvCenter.y); 
         vh.AddVert(origin);
 
         int vertexCount = realSegments + 1;//use the realSegment to control the percentage
         float currentRadian = 0;
+        Vector2 tempPos;
         for(int i = 0; i < segments + 1; i++)//used vertexCount before
         {
             float x = Mathf.Cos(currentRadian) * radius;
@@ -59,9 +64,10 @@ public class CircleImage : Image
             {
                 tempVertext.color = new Color32(60, 60, 60, 255);
             }
-
-            tempVertext.position = new Vector2(x, y);
-            tempVertext.uv0 = new Vector2(tempVertext.position.x * convertRatio.x + uvCenter.x, tempVertext.position.y * convertRatio.y + uvCenter.y);
+            tempPos = new Vector2(x, y);
+            tempVertext.position = tempPos + orignPos;
+            tempVertext.uv0 = new Vector2(tempPos.x * convertRatio.x + uvCenter.x, tempPos.y * convertRatio.y + uvCenter.y);
+            _vertexList.Add(tempPos + orignPos);
             vh.AddVert(tempVertext);
         }
 
@@ -73,4 +79,59 @@ public class CircleImage : Image
             id++;
         }
     }
+
+    public override bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera)
+    {
+        Vector2 localPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, screenPoint, eventCamera, out localPoint);
+        return GetCrpssPointNum(localPoint, _vertexList) % 2 == 1;
+    }
+
+    private int GetCrpssPointNum(Vector2 localPoint, List<Vector3> vertexList)
+    {
+        Vector3 vertex1 = new Vector3();
+        Vector3 vertex2 = new Vector3();
+        int verCount = vertexList.Count;
+        int pointNum = 0;
+
+        for(int i = 0; i < verCount; i++)
+        {
+            vertex1 = vertexList[i];
+            vertex2 = vertexList[(i + 1) % verCount];
+            if(isRayInRange(localPoint,vertex1,vertex2))
+            {
+                if (localPoint.x < GetX(vertex1,vertex2,localPoint.y))
+                {
+                    pointNum++;
+                }
+            }
+        }
+        return pointNum;
+    }
+
+    private bool isRayInRange(Vector2 localPoint,Vector3 vertex1,Vector3 vertex2)
+    {
+        if(vertex1.y > vertex2.y)
+        {
+            return localPoint.y < vertex1.y && localPoint.y > vertex2.y;
+        }else
+        {
+            return localPoint.y < vertex2.y && localPoint.y > vertex1.y;
+        }
+    }
+
+    private float GetX(Vector3 vertex1,Vector3 vertex2,float y)
+    {
+        float k = (vertex1.y - vertex2.y) / (vertex1.x - vertex2.x);
+        return vertex1.x + (y - vertex1.y) / k;
+    }
+
+    //private UIVertex GetUIVertex(Color32 col, Vector3 pos, Vector2 uvPos, Vector2 uvCenter, Vector2 uvScale)
+    //{
+    //    UIVertex tempVertex = new UIVertex();
+    //    tempVertex.color = col;
+    //    tempVertex.position = pos;
+    //    tempVertex.uv0 = new Vector2(uvPos.x * uvScale.x + uvCenter.x, uvPos.y * uvScale.y + uvCenter.y);
+    //    return tempVertex;
+    //}
 }

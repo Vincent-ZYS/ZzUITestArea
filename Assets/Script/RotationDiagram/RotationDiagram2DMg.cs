@@ -16,6 +16,8 @@ public class RotationDiagram2DMg : MonoBehaviour
     private void Start()
     {
         CreateItem();
+        CalculateData();
+        SetItemData();
     }
 
     private GameObject CreateTemplate()
@@ -44,7 +46,24 @@ public class RotationDiagram2DMg : MonoBehaviour
     private void CalculateData()
     {
         float length = (ItemSize.x + itemOffset) * _itemList.Count;
-        float ratioOffset = 1 / (float)_itemList.Count;
+        float ratioOffset = 1.0f / (float)_itemList.Count;
+        float ratio = 0f;
+        for(int i = 0; i < _itemList.Count; i++)
+        {
+            ItemPosData itemData = new ItemPosData();
+            itemData.X = GetX(ratio, length);
+            itemData.ScaleTimes = GetScaleTimes(ratio, maxSize, minSize);
+            ratio += ratioOffset;
+            _posDataList.Add(itemData);
+        }
+    }
+
+    private void SetItemData()
+    {
+        for(int i = 0; i < _posDataList.Count; i++)
+        {
+            _itemList[i].SetSelfData(_posDataList[i]);
+        }
     }
 
     private float GetX(float ratio, float length)
@@ -84,10 +103,10 @@ public class RotationDiagram2DMg : MonoBehaviour
             return maxSz - (1f - ratio) * scaleOffset;
         }
     }
+}
 
-    public struct ItemPosData
-    {
-        private float X;
-        private float ScaleTimes;
-    }
+public struct ItemPosData
+{
+    public float X;
+    public float ScaleTimes;
 }

@@ -366,6 +366,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: f98a09b7d1d1a4bd5b890f8fc0cf411c, type: 3}
   - {fileID: 21300000, guid: 06cbdb0ac10554730ba9f5d19dbd06d1, type: 3}
   - {fileID: 21300000, guid: fb1cad62a2be34da7a18dc2136e49641, type: 3}
+  itemOffset: 10
+  maxSize: 1
+  minSize: 0.5
 --- !u!1 &751255025
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,6 +16,23 @@ public class RotationDiagramItem : MonoBehaviour
             return _image;
         }
     }
+    private RectTransform _rect;
+
+    private RectTransform rect
+    {
+        get
+        {
+            if (_rect == null)
+                _rect = GetComponent<RectTransform>();
+            return _rect;
+        }
+    }
+
+    public void SetSelfData(ItemPosData itemPosData)
+    {
+        rect.anchoredPosition = Vector2.right * itemPosData.X;
+        rect.localScale = Vector3.one*itemPosData.ScaleTimes;
+    }
 
     public void SetParent(Transform parentTf)
     {

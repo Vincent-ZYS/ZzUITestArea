@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,23 +39,49 @@ public class RotationDiagram2DMg : MonoBehaviour
             itemTemp = Instantiate(template).GetComponent<RotationDiagramItem>();
             itemTemp.SetParent(transform);
             itemTemp.SetSprite(sprite);
+            itemTemp.AddMoveListener(MoveXChange);
             _itemList.Add(itemTemp);
         }
         Destroy(template);
     }
 
+    private void MoveXChange(float offsetX)
+    {
+        int leftOrRightMove = offsetX > 0 ? 1 : -1;
+        foreach(RotationDiagramItem item in _itemList)
+        {
+            item.ChangePosId(leftOrRightMove, _itemList.Count);
+        }
+        for(int i = 0; i < _posDataList.Count; i++)
+        {
+            _itemList[i].SetSelfData(_posDataList[_itemList[i].posId]);
+        }
+    }
+
     private void CalculateData()
     {
+        List<ItemData> itemDatas = new List<ItemData>();
+
         float length = (ItemSize.x + itemOffset) * _itemList.Count;
         float ratioOffset = 1.0f / (float)_itemList.Count;
         float ratio = 0f;
         for(int i = 0; i < _itemList.Count; i++)
         {
-            ItemPosData itemData = new ItemPosData();
-            itemData.X = GetX(ratio, length);
-            itemData.ScaleTimes = GetScaleTimes(ratio, maxSize, minSize);
+            ItemData itemData = new ItemData();
+            itemData.PosId = i;
+            _itemList[i].posId = i;
+            itemDatas.Add(itemData);
+
+            ItemPosData itemPosData = new ItemPosData();
+            itemPosData.X = GetX(ratio, length);
+            itemPosData.ScaleTimes = GetScaleTimes(ratio, maxSize, minSize);
             ratio += ratioOffset;
-            _posDataList.Add(itemData);
+            _posDataList.Add(itemPosData);
+        }
+        itemDatas = itemDatas.OrderBy(n => _posDataList[n.PosId].ScaleTimes).ToList();//ascending the order by scale times
+        for(int i = 0; i < itemDatas.Count; i++)
+        {
+            _posDataList[itemDatas[i].PosId].Order = i;
         }
     }
 
@@ -105,8 +132,15 @@ public class RotationDiagram2DMg : MonoBehaviour
     }
 }
 
-public struct ItemPosData
+public class ItemPosData
 {
     public float X;
     public float ScaleTimes;
+    public int Order;
+}
+
+public struct ItemData
+{
+    public int PosId;
+    public int OrderId;
 }

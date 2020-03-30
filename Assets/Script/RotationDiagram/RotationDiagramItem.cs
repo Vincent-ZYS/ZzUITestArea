@@ -43,10 +43,16 @@ public class RotationDiagramItem : MonoBehaviour,IDragHandler,IEndDragHandler
     {
         rect.DOAnchorPos(Vector2.right * itemPosData.X, _animTime);
         rect.DOScale(Vector3.one*itemPosData.ScaleTimes,_animTime);
-        //rect.DOSizeDelta(Vector3.one * itemPosData.ScaleTimes, _animTime,false);
         //rect.anchoredPosition = Vector2.right * itemPosData.X;
         //rect.localScale = Vector3.one*itemPosData.ScaleTimes;
-        transform.SetSiblingIndex(itemPosData.Order);
+        //transform.SetSiblingIndex(itemPosData.Order);
+        StartCoroutine(DelayChangeImgOrder(itemPosData));
+    }
+
+    private IEnumerator DelayChangeImgOrder(ItemPosData data)
+    {
+        yield return new WaitForSeconds(_animTime * 0.3f);
+        transform.SetSiblingIndex(data.Order);
     }
 
     public void SetParent(Transform parentTf)
